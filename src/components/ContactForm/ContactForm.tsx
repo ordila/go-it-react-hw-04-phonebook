@@ -1,31 +1,29 @@
-import { Component } from 'react';
+import { FC, useState } from 'react';
 import { nanoid } from 'nanoid';
 import { ContactProps } from './ContactForm.types';
-import { INITIAL_STATE } from '../../constants/initialStateForm/initialStateForm';
 
-export default class ContactForm extends Component<ContactProps> {
-  state = { ...INITIAL_STATE };
+export const ContactForm: FC<ContactProps> = ({ onAdd }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
-  onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    this.setState({ [name]: value });
+    name === 'name' ? setName(value) : setNumber(value);
   };
 
-  handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const { name, number } = this.state;
-    const { onAdd } = this.props;
-    const isValidateForm = this.validateForm();
+
+    const isValidateForm = validateForm();
 
     if (!isValidateForm) return;
 
     onAdd({ id: nanoid(), name, number });
-    this.setState({ ...INITIAL_STATE });
+    setName('');
+    setNumber('');
   };
 
-  validateForm = () => {
-    const { name, number } = this.state;
-
+  const validateForm = () => {
     if (!name || !number) {
       alert('Заповніть усі поля');
       return false;
@@ -33,23 +31,11 @@ export default class ContactForm extends Component<ContactProps> {
     return true;
   };
 
-  render() {
-    return (
-      <form onSubmit={this.handleFormSubmit}>
-        <input
-          type="text"
-          value={this.state.name}
-          name="name"
-          onChange={this.onChangeInput}
-        />
-        <input
-          type="tel"
-          value={this.state.number}
-          name="number"
-          onChange={this.onChangeInput}
-        />
-        <button type="submit">Додати</button>
-      </form>
-    );
-  }
-}
+  return (
+    <form onSubmit={handleFormSubmit}>
+      <input type="text" value={name} name="name" onChange={onChangeInput} />
+      <input type="tel" value={number} name="number" onChange={onChangeInput} />
+      <button type="submit">Додати</button>
+    </form>
+  );
+};
